@@ -1,7 +1,9 @@
+// sender-app/src/App.js
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import './App.css';
 
-function Sender() {
+function App() {
   const [message, setMessage] = useState('');
   const [messageList, setMessageList] = useState([]);
 
@@ -22,33 +24,28 @@ function Sender() {
   };
 
   return (
-    <div>
-      <h2>📤 Sender</h2>
-      <div>
+    <main>
+      <nav><div className="logo">🔐 Secure Sender</div></nav>
+      <section>
         <input
           type="text"
-          placeholder="Enter message"
+          placeholder="Enter your message..."
           value={message}
           onChange={(e) => setMessage(e.target.value)}
         />
-        <button onClick={sendMessage}>Send</button>
-      </div>
+        <button className="btn btn-color-1" onClick={sendMessage}>Send</button>
 
-      <div style={{ marginTop: '30px' }}>
-        <h3>🗂️ Previously Sent Messages:</h3>
-        {messageList.length === 0 ? (
-          <p>No messages sent yet.</p>
-        ) : (
-          messageList.map((msg, index) => (
-            <div key={index} className="message-card">
-              <p><strong>Decrypted Message:</strong> {msg.decrypted}</p>
-              <p><strong>Encrypted Message:</strong> {msg.encrypted}</p>
+        <div className="about-containers">
+          {messageList.map((msg, idx) => (
+            <div key={idx} className="details-container">
+              <p><strong>Your Message:</strong> {msg.decrypted}</p>
+              <p><strong>Encrypted:</strong> {msg.encrypted}</p>
             </div>
-          ))
-        )}
-      </div>
-    </div>
+          ))}
+        </div>
+      </section>
+    </main>
   );
 }
 
-export default Sender;
+export default App;
