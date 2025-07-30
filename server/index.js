@@ -7,33 +7,57 @@ const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 
-// Generate key/iv for AES
-const key = crypto.randomBytes(32); // 256-bit key
-const iv = crypto.randomBytes(16);  // 128-bit IV
+const AES_KEY = crypto.randomBytes(16); // 128-bit AES key
+const HMAC_KEY = crypto.randomBytes(32); // HMAC-SHA256 key
 
 let messages = [];
 
-function encrypt(text) {
-  const cipher = crypto.createCipheriv('aes-256-cbc', key, iv);
-  return cipher.update(text, 'utf8', 'hex') + cipher.final('hex');
+function encryptFernetStyle(plaintext) {
+  const iv = crypto.randomBytes(16);
+  const cipher = crypto.createCipheriv('aes-128-cbc', AES_KEY, iv);
+  const encrypted = Buffer.concat([cipher.update(plaintext, 'utf8'), cipher.final()]);
+
+  const hmac = crypto.createHmac('sha256', HMAC_KEY)
+                     .update(Buffer.concat([iv, encrypted]))
+                     .digest();
+
+  const finalBuffer = Buffer.concat([iv, encrypted, hmac]);
+  return finalBuffer.toString('base64');
 }
 
-function decrypt(encrypted) {
-  const decipher = crypto.createDecipheriv('aes-256-cbc', key, iv);
-  return decipher.update(encrypted, 'hex', 'utf8') + decipher.final('utf8');
+function decryptFernetStyle(encodedMessage) {
+  const data = Buffer.from(encodedMessage, 'base64');
+  const iv = data.slice(0, 16);
+  const ciphertext = data.slice(16, data.length - 32);
+  const hmac = data.slice(data.length - 32);
+
+  const calcHmac = crypto.createHmac('sha256', HMAC_KEY)
+                         .update(Buffer.concat([iv, ciphertext]))
+                         .digest();
+
+  if (!hmac.equals(calcHmac)) {
+    throw new Error('Invalid HMAC - Message may be tampered');
+  }
+
+  const decipher = crypto.createDecipheriv('aes-128-cbc', AES_KEY, iv);
+  const decrypted = Buffer.concat([decipher.update(ciphertext), decipher.final()]);
+
+  return decrypted.toString('utf8');
 }
 
-// API Endpoints
 app.get('/messages', (req, res) => {
-  const decryptedMessages = messages.map(decrypt);
-  res.json(decryptedMessages);
+  const result = messages.map(({ encrypted }) => {
+    const decrypted = decryptFernetStyle(encrypted);
+    return { encrypted, decrypted };
+  });
+  res.json(result);
 });
 
 app.post('/messages', (req, res) => {
   const { message } = req.body;
-  const encryptedMessage = encrypt(message);
-  messages.push(encryptedMessage);
-  res.status(200).json({ status: 'Message received' });
+  const encrypted = encryptFernetStyle(message);
+  messages.push({ encrypted });
+  res.status(200).json({ status: 'ok', encrypted });
 });
 
 const PORT = 5000;
