@@ -45,6 +45,10 @@ app.get('/messages', (req, res) => {
 app.post('/messages', (req, res) => {
   const { message } = req.body;
   const encrypted = encryptFernetStyle(message);
+
+  console.log(`[sender input] : "${message}"`);
+  console.log(`[encrypted]    : "${encrypted}"\n`);
+  
   messages.push({ encrypted });
   res.status(200).json({ status: 'ok', encrypted });
 });

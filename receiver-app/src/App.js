@@ -1,4 +1,3 @@
-// receiver-app/src/App.js
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import './App.css';
@@ -18,19 +17,18 @@ function App() {
   };
 
   return (
-    <main>
-      <nav><div className="logo">🔒 Secure Receiver</div></nav>
-      <section>
-        <div className="about-containers">
-          {messages.map((msg, idx) => (
-            <div key={idx} className="details-container">
-              <p><strong>Encrypted:</strong> {msg.encrypted}</p>
-              <p><strong>Decrypted:</strong> {msg.decrypted}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-    </main>
+    <div className="container">
+      <h1 className="page-title">Receiver</h1>
+
+      <div className="message-list">
+        {messages.map((msg, idx) => (
+          <div key={idx} className="message-card">
+            <p><strong>Encrypted:</strong> {msg.encrypted}</p>
+            <p><strong>Decrypted:</strong> {msg.decrypted}</p>
+          </div>
+        ))}
+      </div>
+    </div>
   );
 }
 

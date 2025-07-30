@@ -1,4 +1,3 @@
-// sender-app/src/App.js
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './App.css';
@@ -24,27 +23,29 @@ function App() {
   };
 
   return (
-    <main>
-      <nav><div className="logo">🔐 Secure Sender</div></nav>
-      <section>
+    <div className="container">
+      <h1 className="page-title">Sender</h1>
+      <div className="input-wrapper">
         <input
           type="text"
-          placeholder="Enter your message..."
+          placeholder="Enter Your message..."
           value={message}
           onChange={(e) => setMessage(e.target.value)}
         />
-        <button className="btn btn-color-1" onClick={sendMessage}>Send</button>
+        <button className="send-btn" onClick={sendMessage}>
+          Send
+        </button>
+      </div>
 
-        <div className="about-containers">
-          {messageList.map((msg, idx) => (
-            <div key={idx} className="details-container">
-              <p><strong>Your Message:</strong> {msg.decrypted}</p>
-              <p><strong>Encrypted:</strong> {msg.encrypted}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-    </main>
+      <div className="message-list">
+        {messageList.map((msg, idx) => (
+          <div key={idx} className="message-card">
+            <p><strong>Your Message:</strong> {msg.decrypted}</p>
+            <p><strong>Encrypted:</strong> {msg.encrypted}</p>
+          </div>
+        ))}
+      </div>
+    </div>
   );
 }
 
